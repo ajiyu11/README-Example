@@ -1,42 +1,59 @@
-# Hello World
+# Public Variables for Coin Details
 
-This Solidity program is a simple "Hello World" program that demonstrates the basic syntax and functionality of the Solidity programming language. The purpose of this program is to serve as a starting point for those who are new to Solidity and want to get a feel for how it works.
+Token Name: A string that holds the name of the token.
+Token Abbreviation: A shorter version of the token name.
+Total Supply: The total number of tokens available.
 
-## Description
+## Mapping of Addresses to Balances
 
-This program is a simple contract written in Solidity, a programming language used for developing smart contracts on the Ethereum blockchain. The contract has a single function that returns the string "Hello World!". This program serves as a simple and straightforward introduction to Solidity programming, and can be used as a stepping stone for more complex projects in the future.
-
+This mapping will associate each address (which represents a user) with a balance (number of tokens they hold).
 ## Getting Started
 
-### Executing program
+### Mint Function
 
-To run this program, you can use Remix, an online Solidity IDE. To get started, go to the Remix website at https://remix.ethereum.org/.
+Parameters: An address and a value.
+Functionality:
+Increases the total supply by the value.
+Increases the balance of the specified address by the same value.
 
-Once you are on the Remix website, create a new file by clicking on the "+" icon in the left-hand sidebar. Save the file with a .sol extension (e.g., HelloWorld.sol). Copy and paste the following code into the file:
-
-```javascript
-pragma solidity ^0.8.4;
-
-contract HelloWorld {
-    function sayHello() public pure returns (string memory) {
-        return "Hello World!";
-    }
+function mint(address _to, uint256 _value) public {
+    totalSupply += _value;
+    balances[_to] += _value;
 }
 
-```
+## Conditional Check in Burn Function
 
-To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.4" (or another compatible version), and then click on the "Compile HelloWorld.sol" button.
+Ensures the sender’s balance is sufficient to burn the specified amount of tokens, preventing negative balances.
 
-Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "HelloWorld" contract from the dropdown menu, and then click on the "Deploy" button.
+pragma solidity ^0.8.0;
 
-Once the contract is deployed, you can interact with it by calling the sayHello function. Click on the "HelloWorld" contract in the left-hand sidebar, and then click on the "sayHello" function. Finally, click on the "transact" button to execute the function and retrieve the "Hello World!" message.
+contract Token {
+    // Public variables to store coin details
+    string public tokenName;
+    string public tokenAbbrv;
+    uint256 public totalSupply;
 
-## Authors
+    // Mapping of addresses to balances
+    mapping(address => uint256) public balances;
 
-Metacrafter Chris  
-[@metacraftersio](https://twitter.com/metacraftersio)
+    // Constructor to initialize the token details
+    constructor(string memory _name, string memory _abbrv, uint256 _initialSupply) {
+        tokenName = _name;
+        tokenAbbrv = _abbrv;
+        totalSupply = _initialSupply;
+        balances[msg.sender] = _initialSupply; // Assign initial supply to contract creator
+    }
 
+    // Mint function to create new tokens
+    function mint(address _to, uint256 _value) public {
+        totalSupply += _value;
+        balances[_to] += _value;
+    }
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details
+    // Burn function to destroy tokens
+    function burn(address _from, uint256 _value) public {
+        require(balances[_from] >= _value, "Insufficient balance to burn");
+        totalSupply -= _value;
+        balances[_from] -= _value;
+    }
+}
